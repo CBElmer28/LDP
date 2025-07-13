@@ -1,0 +1,49 @@
+<div class="bg-white rounded-lg shadow-lg hover:shadow-xl transition duration-300 overflow-hidden book-card">
+    <a href="{{ url_for('main.book_detail', libro_id=libro.id) }}">
+        <img src="{{ libro.imagen_url or url_for('static', filename='img/default_book.png') }}" 
+             alt="{{ libro.titulo }}" class="book-image">
+    </a>
+    <div class="book-content">
+        <h3 class="book-title text-gray-800 mb-1">
+            <a href="{{ url_for('main.book_detail', libro_id=libro.id) }}" class="hover:text-blue-600">{{ libro.titulo }}</a>
+        </h3>
+        <p class="text-gray-600 text-sm mb-2">Autor: {{ libro.autor }}</p>        
+        {% if libro.categoria_nombre %}
+            <p class="text-gray-600 text-sm mb-3">Género: {{ libro.categoria_nombre }}</p>
+        {% endif %}
+        
+        <div class="flex justify-between items-baseline mb-3">
+            <p class="text-2xl font-bold text-green-600">S/{{ "%.2f"|format(libro.precio) }}</p>
+            {% if libro.stock is not none and libro.stock > 0 %}
+                <span class="text-sm font-semibold text-green-700 bg-green-100 px-2 py-1 rounded-full">En Stock ({{ libro.stock }})</span>
+            {% else %}
+                <span class="text-sm font-semibold text-red-700 bg-red-100 px-2 py-1 rounded-full">Sin Stock</span>
+            {% endif %}
+        </div>
+        
+        {% if libro.en_remate %}
+            <span class="inline-block bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full uppercase mt-2">En Remate</span>
+        {% endif %}
+    </div>
+        
+    <div class="book-actions p-4 pt-0 mt-auto flex justify-center space-x-2"> {# Eliminamos el fondo aquí #}
+        {% if libro.stock is not none and libro.stock > 0 %}            
+            <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-lg 
+                           transition duration-300 ease-in-out transform hover:scale-105 
+                           flex items-center justify-center space-x-2 shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <span>Añadir al Carrito</span>
+            </button>
+        {% else %}            
+            <button class="w-full bg-gray-400 text-gray-700 font-bold py-2.5 px-4 rounded-lg 
+                           cursor-not-allowed flex items-center justify-center space-x-2" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Sin Stock</span>
+            </button>
+        {% endif %}
+    </div>
+</div>

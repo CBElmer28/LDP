@@ -1,5 +1,5 @@
-1. python -m venv venv
+1. python -m venv venv / py -m venv venv
 2. venv\Scripts\activate
 3. pip install -r requirements.txt
-4. python app.py
+4. python app.py / py app.py
 5. Ya es toda 

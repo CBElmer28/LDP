@@ -1,5 +1,4 @@
 
-
 class Config:
     DEBUG = True 
     MYSQL_HOST = 'localhost'
