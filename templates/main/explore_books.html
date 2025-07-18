@@ -45,7 +45,6 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {% if libros %}
                 {% for libro in libros %}
-                    {# Usar un template parcial para la tarjeta del libro si ya lo tienes #}
                     {% include 'main/_book_card.html' %} 
                 {% endfor %}
             {% else %}
