@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Tienda de Libros{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.0/dist/sweetalert2.min.css">
     <style>
         body {
             background: linear-gradient(to right bottom, #edf2f7, #cbd5e0);
@@ -27,13 +29,13 @@
 
         .book-image {
             width: 100%;
-            height: 280px;            
-            object-fit: contain;            
-            background-color: #f0f0f0;            
-            border-radius: 0.75rem 0.75rem 0 0;            
+            height: 280px;
+            object-fit: contain;
+            background-color: #f0f0f0;
+            border-radius: 0.75rem 0.75rem 0 0;
             margin-bottom: 0.5rem;
             display: block;
-            padding: 1rem;            
+            padding: 1rem;
         }
 
         .book-content {
@@ -43,15 +45,14 @@
         }
 
         .book-title {
-            font-size: 1.5rem;            
+            font-size: 1.5rem;
             line-height: 1.2;
             display: -webkit-box;
-            -webkit-line-clamp: 2;            
             -webkit-box-orient: vertical;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: normal;
-            min-height: 3.6rem;            
+            min-height: 3.6rem;
             font-weight: bold;
         }
 
@@ -68,6 +69,7 @@
         .book-actions button {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
+
     </style>
 </head>
 
@@ -81,24 +83,42 @@
             <nav>
                 <ul class="flex space-x-6 text-lg items-center">
                     <li><a href="{{ url_for('main.explore_books') }}"
-                            class="hover:text-blue-200 transition duration-300">Explorar Libros</a></li>
+                                 class="hover:text-blue-200 transition duration-300">Explorar Libros</a></li>
 
-                    {# Enlace para el panel de administración, solo si es admin #}
-                    {% if is_admin %}
-                    <li><a href="{{ url_for('admin.manage_books') }}"
-                            class="hover:text-blue-200 transition duration-300">Administrar Libros</a></li>
+                    {% if session.get('user_id') and not session.get('is_admin') %}
+                    <li>
+                        <a href="{{ url_for('main.cart_detail') }}"
+                            class="hover:text-blue-200 transition duration-300 relative flex items-center">
+                            <i class="fas fa-shopping-cart text-xl"></i>
+                            {% set current_user_cart = session.get('user_carts', {}).get(session.get('user_id') | string, {}) %}
+                            {% set cart_items_count = current_user_cart | length %}
+                            
+                            {% if cart_items_count > 0 %}
+                                <span class="absolute -top-2 -right-3 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                    {{ cart_items_count }}
+                                </span>
+                            {% endif %}
+                            <span class="ml-2">Carrito</span>
+                        </a>
+                    </li>
                     {% endif %}
 
-                    {# Opciones de usuario: Logueado o No Logueado #}
-                    {% if user_logged_in %}
-                    <li class="font-semibold">Hola, {{ username }}!</li>
-                    <li><a href="{{ url_for('auth.logout') }}"
-                            class="hover:text-blue-200 transition duration-300">Salir</a></li>
+                    {% if session.get('is_admin') %}
+                        <li><a href="{{ url_for('admin.manage_books') }}"
+                                 class="hover:text-blue-200 transition duration-300">Administrar Libros</a></li>
+                        <li><a href="{{ url_for('admin.manage_users') }}"
+                                 class="hover:text-blue-200 transition duration-300">Administrar Usuarios</a></li>
+                    {% endif %}
+
+                    {% if session.get('user_id') %}
+                        <li class="font-semibold text-gray-200">Hola, {{ session.get('username') }}!</li>
+                        <li><a href="{{ url_for('auth.logout') }}"
+                                 class="hover:text-blue-200 transition duration-300">Salir</a></li>
                     {% else %}
-                    <li><a href="{{ url_for('auth.login') }}"
-                            class="hover:text-blue-200 transition duration-300">Iniciar Sesión</a></li>
-                    <li><a href="{{ url_for('auth.register') }}"
-                            class="hover:text-blue-200 transition duration-300">Registrarse</a></li>
+                        <li><a href="{{ url_for('auth.login') }}"
+                                 class="hover:text-blue-200 transition duration-300">Iniciar Sesión</a></li>
+                        <li><a href="{{ url_for('auth.register') }}"
+                                 class="hover:text-blue-200 transition duration-300">Registrarse</a></li>
                     {% endif %}
                 </ul>
             </nav>
@@ -106,7 +126,8 @@
     </header>
 
     <main class="flex-grow">
-        {% block content %}{% endblock %}
+        {% block content %}
+        {% endblock %}
     </main>
 
     <footer class="bg-blue-800 text-white p-4 mt-8 text-center shadow-inner">
@@ -114,6 +135,29 @@
             <p>Tienda de Libros. Todos los derechos reservados.</p>
         </div>
     </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.0/dist/sweetalert2.all.min.js"></script>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {    
+            const alertDataString = '{{ alert | tojson | default("{}") }}'; 
+            let alertData = {};
+            try {
+                alertData = JSON.parse(alertDataString);
+            } catch (e) {
+                console.error("Error al parsear datos de alerta en base.html:", e, alertDataString);
+            }
+            
+            if (alertData && alertData.message) {
+                Swal.fire({
+                    icon: alertData.type,
+                    title: alertData.type.charAt(0).toUpperCase() + alertData.type.slice(1), 
+                    text: alertData.message,
+                    confirmButtonText: 'Ok'
+                });
+            }
+        });        
+    </script>
 </body>
 
 </html>

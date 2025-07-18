@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 
-{% block title %}Admin - Gestión de Libros{% endblock %}
+{% block title %}Admin - Gestión de Usuarios{% endblock %}
 
 {% block content %}
     <div class="container mx-auto p-8 mt-8 bg-white rounded-xl shadow-2xl">
-        <h1 class="text-4xl font-extrabold text-center text-blue-800 mb-8">Gestión de Libros</h1>
+        <h1 class="text-4xl font-extrabold text-center text-blue-800 mb-8">Gestión de Usuarios</h1>
         
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -23,39 +23,46 @@
         {% endwith %}
 
         <div class="flex justify-end mb-6">
-            <a href="{{ url_for('admin.add_book') }}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-md">
-                Añadir Nuevo Libro
+            <a href="{{ url_for('admin.add_user') }}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-md">
+                Añadir Nuevo Usuario
             </a>
         </div>
 
+        {# Tabla de usuarios #}
         <div class="overflow-x-auto">
             <table class="min-w-full bg-white border border-gray-200 rounded-lg">
                 <thead>
                     <tr class="bg-blue-100 text-blue-800 uppercase text-sm leading-normal">
                         <th class="py-3 px-6 text-left">ID</th>
-                        <th class="py-3 px-6 text-left">Título</th>
-                        <th class="py-3 px-6 text-left">Autor</th>
-                        <th class="py-3 px-6 text-right">Precio</th>
-                        <th class="py-3 px-6 text-right">Stock</th>
+                        <th class="py-3 px-6 text-left">Nombre</th>
+                        <th class="py-3 px-6 text-left">Correo</th>
+                        <th class="py-3 px-6 text-center">Rol</th>
                         <th class="py-3 px-6 text-center">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-700 text-sm font-light">
-                    {% for libro in libros %}
+                    {% for usuario in usuarios %}
                     <tr class="border-b border-gray-200 hover:bg-gray-100">
-                        <td class="py-3 px-6 text-left whitespace-nowrap">{{ libro.id }}</td>
-                        <td class="py-3 px-6 text-left">{{ libro.titulo }}</td>
-                        <td class="py-3 px-6 text-left">{{ libro.autor }}</td>
-                        <td class="py-3 px-6 text-right">S/. {{ "%.2f"|format(libro.precio) }}</td>
-                        <td class="py-3 px-6 text-right">{{ libro.stock }}</td>
+                        <td class="py-3 px-6 text-left whitespace-nowrap">{{ usuario.id }}</td>
+                        <td class="py-3 px-6 text-left">{{ usuario.nombre }}</td>
+                        <td class="py-3 px-6 text-left">{{ usuario.correo }}</td>
+                        <td class="py-3 px-6 text-center">
+                            {% if usuario.is_admin %}
+                                Administrador
+                            {% else %}
+                                Cliente
+                            {% endif %}
+                        </td> {# Mostrar el rol #}
                         <td class="py-3 px-6 text-center">
                             <div class="flex item-center justify-center space-x-2">
-                                <a href="{{ url_for('admin.edit_book', libro_id=libro.id) }}" title="Editar" class="w-8 h-8 flex items-center justify-center rounded-full bg-blue-500 hover:bg-blue-600 text-white transition duration-300">
+                                {# Enlace para editar usuario #}
+                                <a href="{{ url_for('admin.edit_user', user_id=usuario.id) }}" title="Editar" class="w-8 h-8 flex items-center justify-center rounded-full bg-blue-500 hover:bg-blue-600 text-white transition duration-300">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                     </svg>
                                 </a>
-                                <a href="{{ url_for('admin.delete_book', libro_id=libro.id) }}" title="Eliminar" class="w-8 h-8 flex items-center justify-center rounded-full bg-red-500 hover:bg-red-600 text-white transition duration-300">
+                                {# Enlace para eliminar usuario #}
+                                <a href="{{ url_for('admin.delete_user', user_id=usuario.id) }}" title="Eliminar" class="w-8 h-8 flex items-center justify-center rounded-full bg-red-500 hover:bg-red-600 text-white transition duration-300">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>

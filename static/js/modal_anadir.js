@@ -1,96 +1,75 @@
+document.addEventListener('DOMContentLoaded', () => {
+    const $ = id => document.getElementById(id);
+    const [categoriaSelect, addCategoryModal, newCategoryNameInput, saveNewCategoryBtn, cancelAddCategoryBtn, openAddCategoryModalBtn, categoryError] = 
+        ['categoria_id', 'addCategoryModal', 'newCategoryName', 'saveNewCategory', 'cancelAddCategory', 'openAddCategoryModal', 'categoryError'].map($);
 
-document.addEventListener('DOMContentLoaded', function () {
-    const categoriaSelect = document.getElementById('categoria_id');
-    const addCategoryModal = document.getElementById('addCategoryModal');
-    const newCategoryNameInput = document.getElementById('newCategoryName');
-    const saveNewCategoryBtn = document.getElementById('saveNewCategory');
-    const cancelAddCategoryBtn = document.getElementById('cancelAddCategory');
-    const openAddCategoryModalBtn = document.getElementById('openAddCategoryModal');
-    const categoryError = document.getElementById('categoryError');
-
-    function toggleAddCategoryButtonVisibility() {
-        if (categoriaSelect.value === 'new_category') {
-            openAddCategoryModalBtn.classList.remove('hidden');
-        } else {
-            openAddCategoryModalBtn.classList.add('hidden');
-        }
-    }
-
-    toggleAddCategoryButtonVisibility();
-
-    categoriaSelect.addEventListener('change', function () {
-        toggleAddCategoryButtonVisibility();
-        if (this.value === 'new_category') {
-            addCategoryModal.classList.remove('hidden');
-            newCategoryNameInput.focus();
-        }
-    });
-    
-    openAddCategoryModalBtn.addEventListener('click', function () {
-        addCategoryModal.classList.remove('hidden');
-        newCategoryNameInput.focus();
-    });
-
-    cancelAddCategoryBtn.addEventListener('click', function () {
-        addCategoryModal.classList.add('hidden');
+    const toggleModal = show => addCategoryModal.classList.toggle('hidden', !show);
+    const toggleError = (show, text = '') => {
+        categoryError.classList.toggle('hidden', !show);
+        categoryError.textContent = text;
+    };
+    const toggleAddBtn = () => openAddCategoryModalBtn.classList.toggle('hidden', categoriaSelect.value !== 'new_category');
+    const resetForm = () => {
         newCategoryNameInput.value = '';
-        categoryError.classList.add('hidden');
-        categoryError.textContent = '';
+        toggleError(false);
+    };
 
-        const newCategoryOption = categoriaSelect.querySelector('option[value="new_category"]');
-        if (newCategoryOption && categoriaSelect.value === 'new_category') {
-            categoriaSelect.value = '';
-        }
-        toggleAddCategoryButtonVisibility();
+    const openModal = () => {
+        toggleModal(true);
+        newCategoryNameInput.focus();
+    };
+
+    const closeModal = () => {
+        toggleModal(false);
+        resetForm();
+        if (categoriaSelect.value === 'new_category') categoriaSelect.value = '';
+        toggleAddBtn();
+    };
+
+    toggleAddBtn();
+
+    categoriaSelect.addEventListener('change', () => {
+        toggleAddBtn();
+        if (categoriaSelect.value === 'new_category') openModal();
     });
-    
-    saveNewCategoryBtn.addEventListener('click', async function () {
-        const categoryName = newCategoryNameInput.value.trim();
-        categoryError.classList.add('hidden');
-        categoryError.textContent = '';
 
-        if (!categoryName) {
-            categoryError.textContent = 'El nombre de la categoría no puede estar vacío.';
-            categoryError.classList.remove('hidden');
-            return;
-        }
+    openAddCategoryModalBtn.addEventListener('click', openModal);
+    cancelAddCategoryBtn.addEventListener('click', closeModal);
+
+    saveNewCategoryBtn.addEventListener('click', async () => {
+        const categoryName = newCategoryNameInput.value.trim();
+        toggleError(false);
+
+        if (!categoryName) return toggleError(true, 'El nombre de la categoría no puede estar vacío.');
 
         try {
             const response = await fetch(window.addCategoryUrl, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name: categoryName })
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                const newOption = document.createElement('option');
-                newOption.value = data.id;
-                newOption.textContent = data.nombre;
+                const newOption = Object.assign(document.createElement('option'), {
+                    value: data.id,
+                    textContent: data.nombre
+                });
 
                 const addNewCategoryOption = categoriaSelect.querySelector('option[value="new_category"]');
-                if (addNewCategoryOption) {
-                    categoriaSelect.insertBefore(newOption, addNewCategoryOption);
-                } else {
-                    categoriaSelect.appendChild(newOption);
-                }
-
+                categoriaSelect.insertBefore(newOption, addNewCategoryOption || null);
                 categoriaSelect.value = data.id;
 
-                addCategoryModal.classList.add('hidden');
-                newCategoryNameInput.value = '';
-                openAddCategoryModalBtn.classList.add('hidden');
+                toggleModal(false);
+                resetForm();
+                toggleAddBtn();
             } else {
-                categoryError.textContent = data.error || 'Error al agregar la categoría.';
-                categoryError.classList.remove('hidden');
+                toggleError(true, data.error || 'Error al agregar la categoría.');
             }
         } catch (error) {
             console.error('Error al enviar la solicitud:', error);
-            categoryError.textContent = 'Error de conexión. Inténtalo de nuevo.';
-            categoryError.classList.remove('hidden');
+            toggleError(true, 'Error de conexión. Inténtalo de nuevo.');
         }
     });
 });

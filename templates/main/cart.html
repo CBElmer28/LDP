@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Tu Carrito de Compras - Tienda de Libros{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-8 mt-8 bg-white rounded-xl shadow-2xl max-w-4xl">
+    <h1 class="text-4xl font-extrabold text-center text-blue-800 mb-8">Tu Carrito de Compras</h1>
+
+    {% if cart_items %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
+                <thead>
+                    <tr class="bg-gray-100 text-left text-gray-600 uppercase text-sm leading-normal">
+                        <th class="py-3 px-6 border-b border-gray-200">Producto</th>
+                        <th class="py-3 px-6 border-b border-gray-200 text-center">Precio Unitario</th>
+                        <th class="py-3 px-6 border-b border-gray-200 text-center">Cantidad</th>
+                        <th class="py-3 px-6 border-b border-gray-200 text-center">Stock Disp.</th>
+                        <th class="py-3 px-6 border-b border-gray-200 text-center">Subtotal</th>
+                        <th class="py-3 px-6 border-b border-gray-200 text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-700 text-sm font-light">
+                    {% for item in cart_items %}
+                    <tr class="border-b border-gray-200 hover:bg-gray-50">
+                        <td class="py-3 px-6 text-left whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="mr-3">
+                                    <img class="w-16 h-16 object-cover rounded-md" src="{{ item.imagen_url or url_for('static', filename='images/default_book.png') }}" alt="{{ item.titulo }}">
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-gray-800">{{ item.titulo }}</p>
+                                    <p class="text-gray-500 text-xs">por {{ item.autor }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-3 px-6 text-center">S/.{{ "%.2f"|format(item.precio) }}</td>
+                        <td class="py-3 px-6 text-center">
+                            <div class="flex items-center justify-center space-x-2">
+                                {# Botón para decrementar cantidad #}
+                                <form action="{{ url_for('main.update_cart', libro_id=item.id) }}" method="POST" class="inline-block">
+                                    <input type="hidden" name="cantidad" value="{{ item.cantidad - 1 }}">
+                                    <button type="submit" 
+                                            class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md transition duration-300 text-sm"
+                                            {% if item.cantidad <= 1 %}disabled{% endif %}>
+                                        -
+                                    </button>
+                                </form>
+                                <span class="w-10 text-center font-bold text-lg">{{ item.cantidad }}</span>
+                                <form action="{{ url_for('main.update_cart', libro_id=item.id) }}" method="POST" class="inline-block">
+                                    <input type="hidden" name="cantidad" value="{{ item.cantidad + 1 }}">
+                                    <button type="submit" 
+                                            class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md transition duration-300 text-sm"
+                                            {% if item.cantidad >= item.stock %}disabled{% endif %}>
+                                        +
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                        <td class="py-3 px-6 text-center text-gray-500">{{ item.stock }}</td>
+                        <td class="py-3 px-6 text-center font-semibold">S/.{{ "%.2f"|format(item.precio * item.cantidad) }}</td>
+                        <td class="py-3 px-6 text-center">
+                            <form action="{{ url_for('main.remove_from_cart', libro_id=item.id) }}" method="POST" class="inline">
+                                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md transition duration-300 text-sm">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="flex justify-end items-center mt-8 px-6 py-4 bg-gray-50 rounded-md shadow-inner">
+            <span class="text-2xl font-bold text-gray-800 mr-4">Total:</span>
+            <span class="text-3xl font-extrabold text-blue-700">S/.{{ "%.2f"|format(total_price) }}</span>
+        </div>
+
+        <div class="flex justify-end mt-6 space-x-4">
+            <a href="{{ url_for('main.explore_books') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-md">
+                Seguir Comprando
+            </a>
+            
+            <form action="{{ url_for('main.checkout') }}" method="POST">
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-md">
+                    Proceder al Pago
+                </button>
+            </form>
+        </div>
+    {% else %}
+        <div class="text-center py-10">
+            <p class="text-gray-600 text-xl mb-4">Tu carrito de compras está vacío.</p>
+            <a href="{{ url_for('main.explore_books') }}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-md">
+                Explorar Libros
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
