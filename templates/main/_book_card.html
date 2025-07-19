@@ -1,50 +1,41 @@
-<div class="bg-white rounded-lg shadow-lg hover:shadow-xl transition duration-300 overflow-hidden book-card">
+<div class="bg-gradient-to-br from-yellow-50 via-orange-100 to-amber-100 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 flex flex-col h-full border border-amber-200">
     <a href="{{ url_for('main.book_detail', libro_id=libro.id) }}">
-        <img src="{{ libro.imagen_url or url_for('static', filename='img/default_book.png') }}" 
-             alt="{{ libro.titulo }}" class="book-image">
+        <img src="{{ libro.imagen_url or url_for('static', filename='img/default_book.png') }}"
+             alt="{{ libro.titulo }}"
+             class="w-full h-64 object-contain bg-amber-50 rounded-t-xl p-4" />
     </a>
-    <div class="book-content">
-        <h3 class="book-title text-gray-800 mb-1">
-            <a href="{{ url_for('main.book_detail', libro_id=libro.id) }}" class="hover:text-blue-600">{{ libro.titulo }}</a>
+    <div class="flex-grow p-4">
+        <h3 class="text-xl font-bold text-amber-900 mb-2 line-clamp-2">
+            <a href="{{ url_for('main.book_detail', libro_id=libro.id) }}" class="hover:text-orange-600">{{ libro.titulo }}</a>
         </h3>
-        <p class="text-gray-600 text-sm mb-2">Autor: {{ libro.autor }}</p>        
+        <p class="text-orange-700 mb-1">Autor: {{ libro.autor }}</p>
         {% if libro.categoria_nombre %}
-            <p class="text-gray-600 text-sm mb-3">Género: {{ libro.categoria_nombre }}</p>
+            <p class="text-amber-700 mb-2">Género: {{ libro.categoria_nombre }}</p>
         {% endif %}
-        
-        <div class="flex justify-between items-baseline mb-3">
-            <p class="text-2xl font-bold text-green-600">S/{{ "%.2f"|format(libro.precio) }}</p>
-            {% if libro.stock is not none and libro.stock > 0 %}
-                <span class="text-sm font-semibold text-green-700 bg-green-100 px-2 py-1 rounded-full">En Stock ({{ libro.stock }})</span>
+        <div class="flex justify-between items-center mb-2">
+            <span class="text-lg font-semibold text-orange-700">S/{{ "%.2f"|format(libro.precio) }}</span>
+            {% if libro.stock > 0 %}
+                <span class="text-xs font-semibold text-green-700 bg-green-100 px-2 py-1 rounded-full">En Stock ({{ libro.stock }})</span>
             {% else %}
-                <span class="text-sm font-semibold text-red-700 bg-red-100 px-2 py-1 rounded-full">Sin Stock</span>
+                <span class="text-xs font-semibold text-red-700 bg-red-100 px-2 py-1 rounded-full">Sin Stock</span>
             {% endif %}
         </div>
-        
         {% if libro.en_remate %}
             <span class="inline-block bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full uppercase mt-2">En Remate</span>
         {% endif %}
     </div>
-        
-    <div class="book-actions p-4 pt-0 mt-auto flex justify-center space-x-2"> 
-        {% if libro.stock is not none and libro.stock > 0 %}
+    <div class="p-4 pt-0 mt-auto flex justify-center space-x-2 bg-amber-50 rounded-b-xl">
+        {% if libro.stock > 0 %}
             <form action="{{ url_for('main.add_to_cart', libro_id=libro.id) }}" method="POST" class="w-full">
-                <input type="hidden" name="cantidad" value="1"> 
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-lg 
-                                       transition duration-300 ease-in-out transform hover:scale-105 
-                                       flex items-center justify-center space-x-2 shadow-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
+                <input type="hidden" name="cantidad" value="1">
+                <button type="submit" class="w-full bg-amber-500 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded-lg shadow transition duration-200 flex items-center justify-center space-x-2">
+                    <i class="fas fa-cart-plus mr-2"></i>
                     <span>Añadir al Carrito</span>
                 </button>
             </form>
-        {% else %}            
-            <button class="w-full bg-gray-400 text-gray-700 font-bold py-2.5 px-4 rounded-lg 
-                           cursor-not-allowed flex items-center justify-center space-x-2" disabled>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+        {% else %}
+            <button class="w-full bg-gray-400 text-gray-700 font-bold py-2 px-4 rounded-lg cursor-not-allowed flex items-center justify-center space-x-2" disabled>
+                <i class="fas fa-ban mr-2"></i>
                 <span>Sin Stock</span>
             </button>
         {% endif %}
