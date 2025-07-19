@@ -1,3 +1,4 @@
+from ast import main
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, session, current_app, g
 from models import Libro, Categoria, Usuario, Pedido, PedidoDetalle
 from database import get_db_connection 
@@ -368,6 +369,19 @@ def checkout():
             cursor.close()
             conn.close()
 
+@main_bp.route('/checkout/confirm', methods=['POST'])
+def checkout_confirm():
+    cart = get_user_cart()
+    if not cart:
+        set_alert('Tu carrito está vacío.', 'error')
+        return redirect(url_for('main.cart_detail'))
+
+    total = sum(item['precio'] * item['cantidad'] for item in cart.values())
+    return render_template('main/checkout_confirm.html', cart_items=cart.values(), total_price=total)
+
+
+
+
 
 # --- Rutas del Blueprint (Administrador) ---
 
@@ -692,3 +706,35 @@ def logout():
     session.pop('is_admin', None)
     set_alert('Has cerrado sesión.', 'info')
     return redirect(url_for('main.index'))
+
+
+
+@main_bp.route('/checkout_pass')
+def checkout_pass():
+    if not session.get('user_id'):
+        set_alert('Para continuar al checkout, por favor inicia sesión.', 'info')
+        return redirect(url_for('auth.login'))
+
+    if session.get('is_admin'):
+        set_alert('Los administradores no pueden hacer compras.', 'warning')
+        return redirect(url_for('main.index'))
+
+    cart = get_user_cart()  # ✅ Esta es la función correcta
+    cart_items_data = []
+    total_price = 0
+
+    for item_id in list(cart.keys()):
+        item_data = cart[item_id]
+        libro = Libro.get_by_id(int(item_id))
+        if libro:
+            item_data['titulo'] = libro.titulo
+            item_data['precio'] = float(libro.precio)
+            item_data['cantidad'] = int(item_data['cantidad'])
+            cart_items_data.append(item_data)
+            total_price += item_data['precio'] * item_data['cantidad']
+        else:
+            del cart[item_id]
+
+    save_user_cart(cart)
+
+    return render_template('main/checkout_pass.html', cart_items=cart_items_data, total_price=total_price)

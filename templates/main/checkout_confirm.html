@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirmar Pedido{% endblock %}
+
+{% block content %}
+<div class="container mx-auto max-w-xl p-6 bg-white mt-10 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Confirmación del Pedido</h2>
+
+    <p class="mb-4 text-gray-700">Revisa tu pedido antes de confirmar:</p>
+
+    <ul class="divide-y divide-gray-200 mb-4">
+        {% for item in cart_items %}
+        <li class="flex items-center py-2">
+            <!-- Imagen -->
+            <div class="mr-3">
+                <img class="w-16 h-16 object-cover rounded-md" src="{{ item.imagen_url or url_for('static', filename='images/default_book.png') }}" alt="{{ item.titulo }}">
+            </div>
+            <!-- Detalles -->
+            <div class="flex justify-between w-full">
+                <span>{{ item.titulo }} x{{ item.cantidad }}</span>
+                <span class="font-semibold">S/.{{ "%.2f"|format(item.precio * item.cantidad) }}</span>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <div class="text-right font-bold text-lg mb-6">
+        Total: S/.{{ "%.2f"|format(total_price) }}
+    </div>
+
+    <!-- Selector de método de pago -->
+    <div class="mb-6 text-center">
+        <button onclick="mostrarTarjeta()" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded mr-2">Pagar con Tarjeta</button>
+        <button onclick="mostrarYape()" class="bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded">Pagar con Yape</button>
+    </div>
+
+    <!-- Formulario de tarjeta -->
+    <form id="formTarjeta" action="{{ url_for('main.checkout') }}" method="POST" style="display: none;">
+        <input type="hidden" name="metodo_pago" value="tarjeta">
+
+        <div class="mb-4">
+            <label class="block text-gray-700">Número de Tarjeta</label>
+            <input type="text" id="card_number" name="card_number" class="w-full border p-2 rounded" maxlength="19" required>
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-gray-700">Nombre en la Tarjeta</label>
+            <input type="text" name="card_name" class="w-full border p-2 rounded" required>
+        </div>
+
+        <div class="flex mb-4">
+            <div class="w-1/2 mr-2">
+                <label class="block text-gray-700">Fecha de Expiración</label>
+                <input type="text" name="expiry_date" id="expiry_date" class="w-full border p-2 rounded"
+                    placeholder="MM/AA" maxlength="5" inputmode="numeric" required>
+            </div>
+            <div class="w-1/2 ml-2">
+                <label class="block text-gray-700">CVV</label>
+                <input type="text" name="cvv" class="w-full border p-2 rounded" maxlength="4" inputmode="numeric"
+                    required>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white py-2 px-6 rounded-lg shadow-md">
+                Pagar ahora
+            </button>
+        </div>
+    </form>
+
+    <!-- Vista de pago con Yape -->
+    <div id="formYape" style="display: none;" class="text-center">
+        <p class="mb-4 text-gray-700">Escanea el código QR con tu app de Yape y luego haz clic en "Confirmar Pago".</p>
+        <img src="{{ url_for('static', filename='images/yape.jpg') }}" alt="QR de Yape" class="mx-auto mb-4 w-64">
+        <form action="{{ url_for('main.checkout') }}" method="POST">
+            <input type="hidden" name="metodo_pago" value="yape">
+            <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white py-2 px-6 rounded-lg shadow-md">
+                Confirmar Pago con Yape
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Script para alternar métodos y formatear tarjeta -->
+<script>
+    function mostrarTarjeta() {
+        document.getElementById('formTarjeta').style.display = 'block';
+        document.getElementById('formYape').style.display = 'none';
+    }
+
+    function mostrarYape() {
+        document.getElementById('formTarjeta').style.display = 'none';
+        document.getElementById('formYape').style.display = 'block';
+    }
+
+    // Formatear número de tarjeta con espacios cada 4 dígitos
+    const cardInput = document.getElementById('card_number');
+    cardInput.addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '').substring(0, 16);
+        e.target.value = value.match(/.{1,4}/g)?.join(' ') || '';
+    });
+
+    // Formatear fecha MM/AA
+    const expiryInput = document.getElementById('expiry_date');
+    expiryInput.addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '').substring(0, 4);
+        e.target.value = value.length >= 3 ? value.substring(0, 2) + '/' + value.substring(2) : value;
+    });
+</script>
+{% endblock %}
