@@ -1,4 +1,4 @@
-from flask import Flask, session 
+from flask import Flask, session
 from config import Config
 from routes import main_bp, admin_bp, auth_bp
 
@@ -20,7 +20,7 @@ def create_app():
         return {
             'user_logged_in': user_logged_in,
             'username': username,
-            'is_admin': is_admin,           
+            'is_admin': is_admin,
         }
 
     return app

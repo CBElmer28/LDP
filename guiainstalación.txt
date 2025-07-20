@@ -2,4 +2,4 @@
 2. venv\Scripts\activate
 3. pip install -r requirements.txt
 4. python app.py / py app.py
-5. Ya es toda 
+5. Ya es toda
