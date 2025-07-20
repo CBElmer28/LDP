@@ -655,20 +655,30 @@ def delete_user(user_id):
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        user = Usuario.find_by_username(username) 
+        # Permitir login por JSON (API)
+        if request.is_json:
+            data = request.get_json()
+            username = data.get('username')
+            password = data.get('password')
+        else:
+            username = request.form.get('username')
+            password = request.form.get('password')
+        user = Usuario.find_by_username(username)
         if user and user.check_password(password):
             session['user_id'] = user.id
             session['username'] = user.nombre
             session['is_admin'] = user.is_admin
-            get_user_cart() 
+            get_user_cart()
+            if request.is_json:
+                return jsonify({'success': True, 'is_admin': user.is_admin}), 200
             set_alert('¡Inicio de sesión exitoso!', 'success')
             if user.is_admin:
                 return redirect(url_for('admin.manage_books'))
             else:
                 return redirect(url_for('main.index'))
         else:
+            if request.is_json:
+                return jsonify({'success': False, 'error': 'Usuario o contraseña incorrectos.'}), 401
             set_alert('Usuario o contraseña incorrectos.', 'error')
     return render_template('auth/login.html')
 
@@ -738,3 +748,58 @@ def checkout_pass():
     save_user_cart(cart)
 
     return render_template('main/checkout_pass.html', cart_items=cart_items_data, total_price=total_price)
+# --- APIs GET para datos en formato JSON ---
+
+@admin_bp.route('/api/categorias', methods=['GET'])
+def api_get_categorias():
+    if not session.get('is_admin'):
+        return jsonify({'error': 'Acceso denegado'}), 403
+    categorias = Categoria.get_all()
+    return jsonify([{'id': c.id, 'nombre': c.nombre} for c in categorias])
+
+@admin_bp.route('/api/libros', methods=['GET'])
+def api_get_libros():
+    if not session.get('is_admin'):
+        return jsonify({'error': 'Acceso denegado'}), 403
+    libros = Libro.get_all()
+    return jsonify([
+        {
+            'id': l.id,
+            'titulo': l.titulo,
+            'autor': l.autor,
+            'precio': l.precio,
+            'stock': l.stock,
+            'categoria_id': l.categoria_id,
+            'categoria_nombre': l.categoria_nombre
+        } for l in libros
+    ])
+
+@admin_bp.route('/api/libros/<int:libro_id>', methods=['GET'])
+def api_get_libro(libro_id):
+    if not session.get('is_admin'):
+        return jsonify({'error': 'Acceso denegado'}), 403
+    libro = Libro.get_by_id(libro_id)
+    if not libro:
+        return jsonify({'error': 'Libro no encontrado'}), 404
+    return jsonify({
+        'id': libro.id,
+        'titulo': libro.titulo,
+        'autor': libro.autor,
+        'precio': libro.precio,
+        'stock': libro.stock,
+        'categoria_id': libro.categoria_id,
+        'categoria_nombre': libro.categoria_nombre
+    })
+@admin_bp.route('/api/usuarios', methods=['GET'])
+def api_get_usuarios():
+    if not session.get('is_admin'):
+        return jsonify({'error': 'Acceso denegado'}), 403
+    usuarios = Usuario.get_all()
+    return jsonify([
+        {
+            'id': u.id,
+            'nombre': u.nombre,
+            'correo': getattr(u, 'correo', None),
+            'is_admin': getattr(u, 'is_admin', False)
+        } for u in usuarios
+    ])
