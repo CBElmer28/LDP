@@ -1,7 +1,7 @@
 from ast import main
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, session, current_app, g
 from models import Libro, Categoria, Usuario, Pedido, PedidoDetalle
-from database import get_db_connection 
+from database import get_db_connection
 import datetime
 import mysql.connector
 
@@ -719,7 +719,7 @@ def checkout_pass():
         set_alert('Los administradores no pueden hacer compras.', 'warning')
         return redirect(url_for('main.index'))
 
-    cart = get_user_cart()  # ✅ Esta es la función correcta
+    cart = get_user_cart()
     cart_items_data = []
     total_price = 0
 

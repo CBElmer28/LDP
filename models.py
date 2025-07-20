@@ -170,7 +170,7 @@ class Libro:
             sql = "UPDATE libros SET stock = stock + %s WHERE id = %s"
             try:
                 cursor.execute(sql, (quantity_change, self.id))
-                self.stock += quantity_change # Actualizar el objeto también
+                self.stock += quantity_change
                 return True
             except mysql.connector.Error as e:
                 print(f"Error SQL al actualizar stock del libro {self.id}: {e}")
