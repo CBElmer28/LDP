@@ -3,12 +3,11 @@
 {% block title %}{{ 'Editar Usuario' if usuario else 'Añadir Usuario' }} - Tienda de Libros{% endblock %}
 
 {% block content %}
-    <div class="container mx-auto p-8 mt-8 bg-white rounded-xl shadow-2xl max-w-lg">
-        <h1 class="text-4xl font-extrabold text-center text-blue-800 mb-8">
+    <div class="container mx-auto p-8 mt-8 bg-white rounded-xl shadow-2xl max-w-lg border border-amber-200">
+        <h1 class="text-4xl font-extrabold text-center text-amber-900 mb-8">
             {{ 'Editar Usuario' if usuario else 'Añadir Nuevo Usuario' }}
         </h1>
 
-        {# Sección para mensajes flash #}
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 <div class="mb-6">
@@ -16,7 +15,7 @@
                         <div class="p-4 rounded-lg 
                             {% if category == 'success' %}bg-green-100 text-green-700{% endif %}
                             {% if category == 'error' %}bg-red-100 text-red-700{% endif %}
-                            {% if category == 'info' %}bg-blue-100 text-blue-700{% endif %}
+                            {% if category == 'info' %}bg-amber-100 text-amber-700{% endif %}
                             text-center font-medium mb-2">
                             {{ message }}
                         </div>
@@ -27,54 +26,51 @@
 
         <form method="POST" class="space-y-6">
             <div class="mb-4">
-                <label for="nombre" class="block text-gray-700 text-sm font-bold mb-2">Nombre de Usuario:</label>
+                <label for="nombre" class="block text-amber-900 text-sm font-bold mb-2">Nombre de Usuario:</label>
                 <input type="text" id="nombre" name="nombre" value="{{ usuario.nombre if usuario else '' }}" required
-                       class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                       class="shadow appearance-none border border-amber-300 rounded w-full py-3 px-4 text-amber-900 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-amber-50">
             </div>
 
             <div class="mb-4">
-                <label for="correo" class="block text-gray-700 text-sm font-bold mb-2">Correo Electrónico:</label>
+                <label for="correo" class="block text-amber-900 text-sm font-bold mb-2">Correo Electrónico:</label>
                 <input type="email" id="correo" name="correo" value="{{ usuario.correo if usuario else '' }}" required
-                       class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                       class="shadow appearance-none border border-amber-300 rounded w-full py-3 px-4 text-amber-900 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-amber-50">
             </div>
 
             <div class="mb-4">
-                <label for="password" class="block text-gray-700 text-sm font-bold mb-2">
+                <label for="password" class="block text-amber-900 text-sm font-bold mb-2">
                     Contraseña:
                     {% if usuario %}<span class="text-gray-500 text-xs">(Dejar en blanco para no cambiar)</span>{% endif %}
                 </label>
                 <input type="password" id="password" name="password" 
-                       {% if not usuario %}required{% endif %} {# Contraseña es obligatoria al crear, opcional al editar #}
-                       class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                       {% if not usuario %}required{% endif %}
+                       class="shadow appearance-none border border-amber-300 rounded w-full py-3 px-4 text-amber-900 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-amber-50">
             </div>
 
             <div class="mb-4">
-                <label for="confirm_password" class="block text-gray-700 text-sm font-bold mb-2">
+                <label for="confirm_password" class="block text-amber-900 text-sm font-bold mb-2">
                     Confirmar Contraseña:
                 </label>
                 <input type="password" id="confirm_password" name="confirm_password"
                        {% if not usuario %}required{% endif %}
-                       class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                       class="shadow appearance-none border border-amber-300 rounded w-full py-3 px-4 text-amber-900 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-amber-50">
             </div>
-
 
             <div class="mb-4 flex items-center">
                 <input type="checkbox" id="is_admin" name="is_admin" 
                        {% if usuario and usuario.is_admin %}checked{% endif %}
-                       class="form-checkbox h-5 w-5 text-blue-600 rounded">
-                <label for="is_admin" class="ml-2 text-gray-700 text-sm font-bold">Es Administrador</label>
+                       class="form-checkbox h-5 w-5 text-amber-600 rounded">
+                <label for="is_admin" class="ml-2 text-amber-900 text-sm font-bold">Es Administrador</label>
             </div>
 
             <div class="flex justify-between items-center">
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-md">
+                <button type="submit" class="bg-amber-500 hover:bg-orange-500 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-md">
                     {{ 'Guardar Cambios' if usuario else 'Añadir Usuario' }}
                 </button>
-                <a href="{{ url_for('admin.manage_users') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-md">
+                <a href="{{ url_for('admin.manage_users') }}" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-md">
                     Cancelar
                 </a>
             </div>
         </form>
     </div>
-
-
 {% endblock %}

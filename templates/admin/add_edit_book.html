@@ -3,8 +3,13 @@
 {% block title %}{{ title }} - Tienda de Libros{% endblock %}
 
 {% block content %}
-    <div class="container mx-auto p-8 mt-8 bg-white rounded-xl shadow-2xl max-w-lg">
-        <h1 class="text-4xl font-extrabold text-center text-blue-800 mb-8">{{ title }}</h1>
+    <script>
+  window.addCategoryUrl = "{{ url_for('admin.add_category_ajax') }}";
+</script>
+    <script src="{{ url_for('static', filename='js/preview_img.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modal_anadir.js') }}"></script>
+    <div class="container mx-auto p-8 mt-8 bg-white rounded-xl shadow-2xl max-w-lg border border-amber-200">
+        <h1 class="text-4xl font-extrabold text-center text-amber-900 mb-8">{{ title }}</h1>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -13,7 +18,7 @@
                         <div class="p-4 rounded-lg 
                             {% if category == 'success' %}bg-green-100 text-green-700{% endif %}
                             {% if category == 'error' %}bg-red-100 text-red-700{% endif %}
-                            {% if category == 'info' %}bg-blue-100 text-blue-700{% endif %}
+                            {% if category == 'info' %}bg-amber-100 text-amber-700{% endif %}
                             text-center font-medium mb-2">
                             {{ message }}
                         </div>
@@ -25,24 +30,24 @@
         <form method="POST" class="space-y-6">
             <!-- Título -->
             <div class="mb-4">
-                <label for="titulo" class="block text-gray-700 text-sm font-bold mb-2">Título:</label>
+                <label for="titulo" class="block text-amber-900 text-sm font-bold mb-2">Título:</label>
                 <input type="text" id="titulo" name="titulo" value="{{ libro.titulo if libro else '' }}" required
-                       class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                       class="shadow appearance-none border border-amber-300 rounded w-full py-3 px-4 text-amber-900 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-amber-50">
             </div>
 
             <!-- Autor -->
             <div class="mb-4">
-                <label for="autor" class="block text-gray-700 text-sm font-bold mb-2">Autor:</label>
+                <label for="autor" class="block text-amber-900 text-sm font-bold mb-2">Autor:</label>
                 <input type="text" id="autor" name="autor" value="{{ libro.autor if libro else '' }}" required
-                       class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                       class="shadow appearance-none border border-amber-300 rounded w-full py-3 px-4 text-amber-900 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-amber-50">
             </div>
 
             <!-- Categoría y Botón Añadir Categoría -->
             <div class="mb-4">
-                <label for="categoria_id" class="block text-gray-700 text-sm font-bold mb-2">Categoría:</label>
+                <label for="categoria_id" class="block text-amber-900 text-sm font-bold mb-2">Categoría:</label>
                 <div class="flex items-center space-x-2">
                     <select id="categoria_id" name="categoria_id" required
-                            class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            class="shadow appearance-none border border-amber-300 rounded w-full py-3 px-4 text-amber-900 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-amber-50">
                         <option value="">-- Selecciona una categoría --</option>
                         {% for categoria in categorias %}
                             <option value="{{ categoria.id }}" {% if libro and libro.categoria_id == categoria.id %}selected{% endif %}>
@@ -51,33 +56,33 @@
                         {% endfor %}
                         <option value="new_category">-- Agregar Nueva Categoría --</option>
                     </select>
-                    <button type="button" id="openAddCategoryModal" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hidden transition duration-300">+</button>
+                    <button type="button" id="openAddCategoryModal" class="bg-amber-500 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded-lg hidden transition duration-300">+</button>
                 </div>
             </div>
             <!-- Precio -->
             <div class="mb-4">
-                <label for="precio" class="block text-gray-700 text-sm font-bold mb-2">Precio:</label>
+                <label for="precio" class="block text-amber-900 text-sm font-bold mb-2">Precio:</label>
                 <input type="number" id="precio" name="precio" value="{{ "%.2f"|format(libro.precio) if libro else '0.00' }}" step="0.01" min="0" required
-                       class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                       class="shadow appearance-none border border-amber-300 rounded w-full py-3 px-4 text-amber-900 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-amber-50">
             </div>
 
             <!-- Stock -->
             <div class="mb-4">
-                <label for="stock" class="block text-gray-700 text-sm font-bold mb-2">Stock:</label>
+                <label for="stock" class="block text-amber-900 text-sm font-bold mb-2">Stock:</label>
                 <input type="number" id="stock" name="stock" value="{{ libro.stock if libro else '0' }}" min="0" required
-                       class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                       class="shadow appearance-none border border-amber-300 rounded w-full py-3 px-4 text-amber-900 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-amber-50">
             </div>
 
             <!-- URL de Imagen y Vista Previa -->
             <div class="mb-4">
-                <label for="imagen_url" class="block text-gray-700 text-sm font-bold mb-2">URL de Imagen:</label>
+                <label for="imagen_url" class="block text-amber-900 text-sm font-bold mb-2">URL de Imagen:</label>
                 <input type="url" id="imagen_url" name="imagen_url" value="{{ libro.imagen_url if libro else '' }}"
-                       class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                       class="shadow appearance-none border border-amber-300 rounded w-full py-3 px-4 text-amber-900 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-amber-50">
                 <div class="mt-4 text-center">
                     <img id="image-preview" 
                          src="{{ libro.imagen_url if libro and libro.imagen_url else 'https://placehold.co/200x200/cccccc/333333?text=Sin+Imagen' }}" 
                          alt="Vista previa de la imagen" 
-                         class="max-w-full h-auto mx-auto rounded-lg shadow-md border border-gray-200"
+                         class="max-w-full h-auto mx-auto rounded-lg shadow-md border border-amber-200"
                          style="max-height: 200px;"
                          onerror="this.src='https://placehold.co/200x200/cccccc/333333?text=Error+Carga';">
                 </div>
@@ -85,38 +90,37 @@
 
             <!-- Descripción -->
             <div class="mb-4">
-                <label for="descripcion" class="block text-gray-700 text-sm font-bold mb-2">Descripción:</label>
+                <label for="descripcion" class="block text-amber-900 text-sm font-bold mb-2">Descripción:</label>
                 <textarea id="descripcion" name="descripcion" rows="4"
-                              class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">{{ libro.descripcion if libro else '' }}</textarea>
+                              class="shadow appearance-none border border-amber-300 rounded w-full py-3 px-4 text-amber-900 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-amber-50">{{ libro.descripcion if libro else '' }}</textarea>
             </div>
 
             <!-- Editorial -->
             <div class="mb-4">
-                <label for="editorial" class="block text-gray-700 text-sm font-bold mb-2">Editorial:</label>
+                <label for="editorial" class="block text-amber-900 text-sm font-bold mb-2">Editorial:</label>
                 <input type="text" id="editorial" name="editorial" value="{{ libro.editorial if libro else '' }}"
-                       class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                       class="shadow appearance-none border border-amber-300 rounded w-full py-3 px-4 text-amber-900 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-amber-50">
             </div>
 
             <!-- Fecha de Publicación -->
             <div class="mb-4">
-                <label for="fecha_publicacion" class="block text-gray-700 text-sm font-bold mb-2">Fecha de Publicación:</label>
+                <label for="fecha_publicacion" class="block text-amber-900 text-sm font-bold mb-2">Fecha de Publicación:</label>
                 <input type="date" id="fecha_publicacion" name="fecha_publicacion" value="{{ libro.fecha_publicacion.strftime('%Y-%m-%d') if libro and libro.fecha_publicacion else '' }}"
-                       class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                       class="shadow appearance-none border border-amber-300 rounded w-full py-3 px-4 text-amber-900 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-amber-50">
             </div>
 
             <!-- En Remate -->
             <div class="mb-4 flex items-center">
                 <input type="checkbox" id="en_remate" name="en_remate" {% if libro and libro.en_remate %}checked{% endif %}
-                       class="form-checkbox h-5 w-5 text-blue-600 rounded">
-                <label for="en_remate" class="ml-2 text-gray-700 text-sm font-bold">En Remate</label>
+                       class="form-checkbox h-5 w-5 text-amber-600 rounded">
+                <label for="en_remate" class="ml-2 text-amber-900 text-sm font-bold">En Remate</label>
             </div>
 
-
             <div class="flex justify-between items-center">
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-md">
+                <button type="submit" class="bg-amber-500 hover:bg-orange-500 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-md">
                     {{ 'Guardar Cambios' if libro else 'Añadir Libro' }}
                 </button>
-                <a href="{{ url_for('admin.manage_books') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-md">
+                <a href="{{ url_for('admin.manage_books') }}" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-md">
                     Cancelar
                 </a>
             </div>
@@ -125,12 +129,12 @@
 
     <!-- Modal para Añadir Nueva Categoría -->
     <div id="addCategoryModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-50">
-        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm m-4">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Agregar Nueva Categoría</h2>
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm m-4 border border-amber-200">
+            <h2 class="text-2xl font-bold text-amber-900 mb-4 text-center">Agregar Nueva Categoría</h2>
             <div class="mb-4">
-                <label for="newCategoryName" class="block text-gray-700 text-sm font-bold mb-2">Nombre de la Categoría:</label>
+                <label for="newCategoryName" class="block text-amber-900 text-sm font-bold mb-2">Nombre de la Categoría:</label>
                 <input type="text" id="newCategoryName" placeholder="Ej: Ciencia Ficción"
-                       class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                       class="shadow appearance-none border border-amber-300 rounded w-full py-3 px-4 text-amber-900 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-amber-50">
             </div>
             <div id="categoryError" class="text-red-500 text-sm mb-4 hidden"></div>
             <div class="flex justify-end space-x-3">
@@ -144,7 +148,5 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/preview_img.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/modal_anadir.js') }}"></script>
 
 {% endblock %}
