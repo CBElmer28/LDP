@@ -3,6 +3,11 @@
 {% block title %}{{ title }} - Tienda de Libros{% endblock %}
 
 {% block content %}
+    <script>
+  window.addCategoryUrl = "{{ url_for('admin.add_category_ajax') }}";
+</script>
+    <script src="{{ url_for('static', filename='js/preview_img.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modal_anadir.js') }}"></script>
     <div class="container mx-auto p-8 mt-8 bg-white rounded-xl shadow-2xl max-w-lg border border-amber-200">
         <h1 class="text-4xl font-extrabold text-center text-amber-900 mb-8">{{ title }}</h1>
 
@@ -143,7 +148,5 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/preview_img.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/modal_anadir.js') }}"></script>
 
 {% endblock %}
